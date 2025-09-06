@@ -2,3 +2,9 @@
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
+
+# Ensure client-side routes like /privacy and /contact work on refresh
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

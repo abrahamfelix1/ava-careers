@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { motion } from 'framer-motion';
-import logo from './assets/ava-logo.png';
+import logo from "./assets/ava-logo.png";
+import { Link } from "react-router-dom";
 
 const gradientBG =
   'bg-[radial-gradient(1100px_600px_at_10%_-10%,rgba(34,211,238,.25),transparent_60%),radial-gradient(900px_500px_at_100%_0%,rgba(14,165,233,.25),transparent_60%),linear-gradient(180deg,#020617_0%,#020617_60%,#0b1220_100%)]';
@@ -36,15 +37,26 @@ function Card({title,type,blurb,tags}:{title:string;type:string;blurb:string;tag
       <div className="mt-4 flex flex-wrap gap-2">
         {tags.map(t=> <span key={t} className="text-[11px] md:text-xs px-2.5 py-1 rounded-full border border-slate-400/20 text-slate-200/90 bg-slate-50/[0.03]">{t}</span>)}
       </div>
-      <a href={`#apply?role=${encodeURIComponent(title)}`} className="mt-5 inline-block cta">Apply</a>
+      <a
+  href="#apply"
+  className="mt-5 inline-block cta"
+  onClick={() => {
+    // save selected role for the form to read
+    sessionStorage.setItem('ava_selected_role', title);
+    // smooth scroll for good UX (optional)
+    const el = document.getElementById('apply');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }}
+>
+  Apply
+</a>
       <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-white/10 group-hover:ring-cyan-300/40 transition"/>
     </motion.div>
   );
 }
 
-function ApplicationForm(){
-  const getHashRole = () => typeof window!=='undefined' ? new URLSearchParams(window.location.hash.split('?')[1]).get('role') : null;
-  const [role,setRole] = useState<Role | ''>((getHashRole() as Role) || '');
+function ApplicationForm() {
+  const [role, setRole] = useState<Role | ''>('');
   const [fullName,setFullName] = useState('');
   const [email,setEmail] = useState('');
   const [phone,setPhone] = useState('');
@@ -55,6 +67,14 @@ function ApplicationForm(){
   const [agree,setAgree] = useState(false);
   const [busy,setBusy] = useState(false);
   const [msg,setMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem('ava_selected_role');
+    if (saved) {
+      setRole(saved as Role);
+      sessionStorage.removeItem('ava_selected_role');
+    }
+  }, []);
 
   const roles: Role[] = ['UI/UX Specialist','Social Media Manager','Project Manager','Content Writer (Intern)','Social Media Specialist (Intern)','Brand Manager (Intern)'];
 
@@ -160,7 +180,17 @@ export default function App(){
             <a href="#internships" className="hover:text-white">Internships</a>
             <a href="#apply" className="hover:text-white">Apply</a>
           </nav>
-          <a href="#apply" className="cta ml-3">Join Us</a>
+          <a
+  href="#apply"
+  className="rounded-xl bg-cyan-500/90 hover:bg-cyan-400 text-slate-900 font-semibold px-4 py-2 ml-3"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = document.getElementById("apply");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }}
+>
+  Join Us
+</a>
         </div>
       </header>
 
@@ -200,18 +230,29 @@ export default function App(){
         </div>
       </section>
 
+            {/* APPLY */}
       <section id="apply" className="container py-16">
         <div className="rounded-3xl p-8 md:p-12 bg-gradient-to-tr from-cyan-500/15 to-emerald-400/10 border border-white/10">
           <h2 className="text-2xl md:text-3xl font-semibold">Ready to apply?</h2>
-          <p className="mt-2 text-slate-200/90">Your application is sent directly to <span className="underline decoration-dotted">projectsavahq@gmail.com</span>.</p>
-          <ApplicationForm/>
+          <p className="mt-2 text-slate-200/90">
+            Your application is sent directly to{" "}
+            <span className="underline decoration-dotted">projectsavahq@gmail.com</span>.
+          </p>
+          <ApplicationForm />
         </div>
+
+        {/* FOOTER */}
         <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
-          <div className="flex items-center gap-2"><img src={logo} className="w-6 h-6"/> <span>© {new Date().getFullYear()} AVA — Sifasec LLC</span></div>
+          <div className="flex items-center gap-2">
+            <img src={logo} className="w-6 h-6" alt="AVA logo small" />
+            <span>© {new Date().getFullYear()} AVA — The AVA Project Limited</span>
+          </div>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-slate-300">Privacy</a>
-            <a href="#" className="hover:text-slate-300">Careers</a>
-            <a href="#" className="hover:text-slate-300">Contact</a>
+            {/* use React Router links if you added routing */}
+            {/* import { Link } from "react-router-dom"; at the top */}
+            <Link to="/privacy" className="hover:text-slate-300">Privacy</Link>
+            <Link to="/" className="hover:text-slate-300">Careers</Link>
+            <Link to="/contact" className="hover:text-slate-300">Contact</Link>
           </div>
         </div>
       </section>
